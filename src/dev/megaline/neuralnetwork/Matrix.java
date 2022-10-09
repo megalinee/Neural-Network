@@ -1,5 +1,8 @@
 package dev.megaline.neuralnetwork;
 
+import java.util.Arrays;
+import java.util.Random;
+
 class Matrix {
     private int rows;
     private int cols;
@@ -10,9 +13,10 @@ class Matrix {
         this.rows = rows;
         this.cols = cols;
 
+        Random generator = new Random(146929964); // put this in a base26 cipher if ur cool
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                data[i][j] = Math.random() * 2 - 1;
+                data[i][j] = generator.nextDouble() * 2 - 1;
             }
         }
     }
@@ -31,6 +35,10 @@ class Matrix {
 
     int getColLength() {
         return cols;
+    }
+
+    public String toString() {
+        return Arrays.deepToString(data);
     }
 
 }

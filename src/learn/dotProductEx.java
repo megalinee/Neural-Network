@@ -3,7 +3,9 @@ package learn;
 import java.util.Arrays;
 
 /*
-    * Dot Product Operation
+    * -------------------------
+    *   Dot Product Operation
+    * -------------------------
     * - The Dot Product Operation in this instance multiplies each 
     *   value in each row of A with each value of each column in B. 
     *   This is then saved to a new 2d array. 

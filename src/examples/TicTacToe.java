@@ -50,7 +50,7 @@ public class TicTacToe {
         // Logs neural network start time
         Instant neuralStart = Instant.now();
 
-        int[] layers = { 9, 20, 20, 20, 1 };
+        int[] layers = { 9, 10, 10, 10, 1 };
         NeuralNetwork nn = new NeuralNetwork(layers, .01);
         nn.fit(inputArray, outputArray, 200000);
 
