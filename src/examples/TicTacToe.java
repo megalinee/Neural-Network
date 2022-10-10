@@ -1,6 +1,5 @@
 package examples;
 
-import dev.megaline.neuralnetwork.*;
 import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
@@ -8,14 +7,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import dev.megaline.neuralnetwork.*;
+
+/*
+    * ---------------
+    *   Tic Tac Toe
+    * ---------------
+    * - This Neural Network is able to predict if X will win in any given tic tac toe end game.
+    * 
+    * -- INPUT --
+    *  The input corresponds to a Tic Tac Toe board.
+    *  {Top Left, Top Middle, Top Right, Middle Left, Middle, Middle Right, Bottom Left, Bottom Middle, Bottom Right}
+    *  1 = X
+    *  0 = Blank
+    *  -1 = O
+    * 
+    * -- OUTPUT --
+    *  The output corresponds to the percentage likelihood of X winning in end game.
+    *  EX: .08 = 8%
+    * 
+*/
+
 public class TicTacToe {
     public static void main(String[] args) throws Exception {
 
         // Logs data parsing start time
         Instant dataStart = Instant.now();
 
+        // Retrieves data from CSV file
         List<List<String>> data = new ArrayList<>();
-
         File ticTacToeData = new File("./src/examples/data/tictactoedata.csv");
         try (Scanner scanner = new Scanner(ticTacToeData);) {
             while (scanner.hasNextLine()) {
@@ -23,6 +43,7 @@ public class TicTacToe {
             }
         }
 
+        // Converts List of String List into 2 2D arrays for Neural Network class.
         double[][] inputArray = new double[data.size()][9];
         double[][] outputArray = new double[data.size()][1];
         for (int i = 0; i < data.size(); i++) {
@@ -47,35 +68,49 @@ public class TicTacToe {
             }
         }
 
-        // Logs neural network start time
+        // Logs Neural Network start time
         Instant neuralStart = Instant.now();
 
+        /*
+         * Corresponds to layers in Neural Network.
+         * - First number will always be number of inputs
+         * - Last number will always be number of outputs
+         * - Each number in between will corresponds to a
+         * hidden network and the amount of nodes in each.
+         */
         int[] layers = { 9, 10, 10, 10, 1 };
+
+        // Starts neural network.
+        // Sets learning rate & epochs (Amount of data to consume)
         NeuralNetwork nn = new NeuralNetwork(layers, .01);
         nn.fit(inputArray, outputArray, 200000);
 
-        // Logs neural network end time
+        // Logs Neural Network end time
         Instant neuralEnd = Instant.now();
-        System.out
-                .println("TOTAL TIME ELAPSED: " + Duration.between(dataStart, neuralEnd).toString().substring(2) + ".");
-        System.out.println(
-                "TIME FOR DATA PARSING: " + Duration.between(dataStart, neuralStart).toString().substring(2) + ".");
-        System.out.println(
-                "TIME FOR NEURAL NETWORK TRAINING: "
-                        + Duration.between(neuralStart, neuralEnd).toString().substring(2) + ".");
 
+        // Outputs total time elapsed for each period.
+        String totalTimeElapsed = Duration.between(dataStart, neuralEnd).toString().substring(2) + ".";
+        System.out.println("TOTAL TIME ELAPSED: " + totalTimeElapsed);
+
+        String parsingTimeElapsed = Duration.between(dataStart, neuralStart).toString().substring(2) + ".";
+        System.out.println("TIME FOR DATA PARSING: " + parsingTimeElapsed);
+
+        String networkTimeElapsed = Duration.between(neuralStart, neuralEnd).toString().substring(2) + ".";
+        System.out.println("TIME FOR NEURAL NETWORK TRAINING: " + networkTimeElapsed);
+
+        // Input data to test if Neural Network worked.
         double[][] input = {
-                {
+                { // Should be not likely
                         -1, -1, 1,
                         1, 1, -1,
                         -1, 1, 1
                 },
-                {
+                { // Should be very likely
                         1, 1, 1,
                         0, -1, -1,
                         -1, 0, 1
                 },
-                {
+                { // Should be not likely
                         -1, -1, -1,
                         1, 1, 0,
                         1, 0, 0
