@@ -78,12 +78,12 @@ public class TicTacToe {
          * - Each number in between will corresponds to a
          * hidden network and the amount of nodes in each.
          */
-        int[] layers = { 9, 10, 10, 10, 1 };
+        int[] layers = { 9, 8, 8, 1 };
 
         // Starts neural network.
         // Sets learning rate & epochs (Amount of data to consume)
-        NeuralNetwork nn = new NeuralNetwork(layers, .01);
-        nn.fit(inputArray, outputArray, 200000);
+        NeuralNetwork nn = new NeuralNetwork(layers, .1);
+        nn.fit(inputArray, outputArray, 100000);
 
         // Outputs total time elapsed for each period.
         timer.printTimeInfo(TimeID.NEURAL_NETWORK_END);

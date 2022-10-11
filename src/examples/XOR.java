@@ -60,7 +60,7 @@ public class XOR {
         // Starts neural network.
         // Sets learning rate & epochs (Amount of data to consume)
         NeuralNetwork nn = new NeuralNetwork(layers, .1);
-        nn.fit(inputData, outputData, 10000);
+        nn.fit(inputData, outputData, 13000);
 
         // Outputs total time elapsed for each period.
         timer.printTimeInfo(TimeID.NEURAL_NETWORK_END);
