@@ -35,11 +35,6 @@ public class NeuralNetworkTimer {
         }
     }
 
-    public void printTimeInfo(TimeID id) {
-        setTime(id);
-        printTimeInfo();
-    }
-
     public void printTimeInfo() {
         if (dataStart == null || neuralStart == null || neuralEnd == null)
             return;

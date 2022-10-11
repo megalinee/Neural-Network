@@ -31,7 +31,7 @@ import dev.megaline.time.NeuralNetworkTimer.TimeID;
 public class TicTacToe {
     public static void main(String[] args) throws Exception {
 
-        // Initialize Neural Network Timer
+        // Initialize Neural Network Timer & logs the data parsing start time
         NeuralNetworkTimer timer = new NeuralNetworkTimer(TimeID.DATA_PARSE_START);
 
         // Retrieves data from CSV file
@@ -85,8 +85,11 @@ public class TicTacToe {
         NeuralNetwork nn = new NeuralNetwork(layers, .01);
         nn.fit(inputArray, outputArray, 200000);
 
+        // Logs Neural Network end time
+        timer.setTime(TimeID.NEURAL_NETWORK_END);
+
         // Outputs total time elapsed for each period.
-        timer.printTimeInfo(TimeID.NEURAL_NETWORK_END);
+        timer.printTimeInfo();
 
         // Input data to test if Neural Network worked.
         double[][] input = {

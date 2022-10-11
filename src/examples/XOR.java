@@ -27,7 +27,7 @@ import dev.megaline.time.NeuralNetworkTimer.TimeID;
 public class XOR {
     public static void main(String[] args) {
 
-        // Initialize Neural Network Timer
+        // Initialize Neural Network Timer & logs the data parsing start time
         NeuralNetworkTimer timer = new NeuralNetworkTimer(TimeID.DATA_PARSE_START);
 
         // Creates the input and output training data. Each index in input corresponds
@@ -62,8 +62,11 @@ public class XOR {
         NeuralNetwork nn = new NeuralNetwork(layers, .1);
         nn.fit(inputData, outputData, 10000);
 
+        // Logs Neural Network end time
+        timer.setTime(TimeID.NEURAL_NETWORK_END);
+
         // Outputs total time elapsed for each period.
-        timer.printTimeInfo(TimeID.NEURAL_NETWORK_END);
+        timer.printTimeInfo();
 
         double[][] input = {
                 { 0, 0 }, // Should be false
