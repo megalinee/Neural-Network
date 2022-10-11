@@ -1,9 +1,8 @@
 package examples;
 
-import java.time.Duration;
-import java.time.Instant;
-
 import dev.megaline.neuralnetwork.*;
+import dev.megaline.time.*;
+import dev.megaline.time.NeuralNetworkTimer.TimeID;
 
 /*
     * -------
@@ -28,8 +27,8 @@ import dev.megaline.neuralnetwork.*;
 public class XOR {
     public static void main(String[] args) {
 
-        // Logs data parsing start time
-        Instant dataStart = Instant.now();
+        // Initialize Neural Network Timer
+        NeuralNetworkTimer timer = new NeuralNetworkTimer(TimeID.DATA_PARSE_START);
 
         // Creates the input and output training data. Each index in input corresponds
         // to the index for the output.
@@ -47,7 +46,7 @@ public class XOR {
         };
 
         // Logs Neural Network start time
-        Instant neuralStart = Instant.now();
+        timer.setTime(TimeID.NEURAL_NETWORK_START);
 
         /*
          * Corresponds to layers in Neural Network.
@@ -63,18 +62,8 @@ public class XOR {
         NeuralNetwork nn = new NeuralNetwork(layers, .1);
         nn.fit(inputData, outputData, 10000);
 
-        // Logs Neural Network end time
-        Instant neuralEnd = Instant.now();
-
         // Outputs total time elapsed for each period.
-        String totalTimeElapsed = Duration.between(dataStart, neuralEnd).toString().substring(2) + ".";
-        System.out.println("TOTAL TIME ELAPSED: " + totalTimeElapsed);
-
-        String parsingTimeElapsed = Duration.between(dataStart, neuralStart).toString().substring(2) + ".";
-        System.out.println("TIME FOR DATA PARSING: " + parsingTimeElapsed);
-
-        String networkTimeElapsed = Duration.between(neuralStart, neuralEnd).toString().substring(2) + ".";
-        System.out.println("TIME FOR NEURAL NETWORK TRAINING: " + networkTimeElapsed);
+        timer.printTimeInfo(TimeID.NEURAL_NETWORK_END);
 
         double[][] input = {
                 { 0, 0 }, // Should be false

@@ -1,13 +1,13 @@
 package examples;
 
 import java.io.File;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import dev.megaline.neuralnetwork.*;
+import dev.megaline.time.*;
+import dev.megaline.time.NeuralNetworkTimer.TimeID;
 
 /*
     * -------------------
@@ -32,8 +32,8 @@ import dev.megaline.neuralnetwork.*;
 public class FraudDetection {
     public static void main(String[] args) throws Exception {
 
-        // Logs data parsing start time
-        Instant dataStart = Instant.now();
+        // Initialize Neural Network Timer
+        NeuralNetworkTimer timer = new NeuralNetworkTimer(TimeID.DATA_PARSE_START);
 
         // Retrieves data from CSV file
         List<List<String>> data = new ArrayList<>();
@@ -55,7 +55,7 @@ public class FraudDetection {
         }
 
         // Logs Neural Network start time
-        Instant neuralStart = Instant.now();
+        timer.setTime(TimeID.NEURAL_NETWORK_START);
 
         /*
          * Corresponds to layers in Neural network.
@@ -71,18 +71,8 @@ public class FraudDetection {
         NeuralNetwork nn = new NeuralNetwork(layers, .1);
         nn.fit(inputArray, outputArray, 200000);
 
-        // Logs Neural Network end time
-        Instant neuralEnd = Instant.now();
-
         // Outputs total time elapsed for each period.
-        String totalTimeElapsed = Duration.between(dataStart, neuralEnd).toString().substring(2) + ".";
-        System.out.println("TOTAL TIME ELAPSED: " + totalTimeElapsed);
-
-        String parsingTimeElapsed = Duration.between(dataStart, neuralStart).toString().substring(2) + ".";
-        System.out.println("TIME FOR DATA PARSING: " + parsingTimeElapsed);
-
-        String networkTimeElapsed = Duration.between(neuralStart, neuralEnd).toString().substring(2) + ".";
-        System.out.println("TIME FOR NEURAL NETWORK TRAINING: " + networkTimeElapsed);
+        timer.printTimeInfo(TimeID.NEURAL_NETWORK_END);
 
         // Input data to test if Neural Network worked.
         double[][] input = {
