@@ -68,8 +68,8 @@ public class FraudDetection {
 
         // Starts neural network.
         // Sets learning rate & epochs (Amount of data to consume)
-        NeuralNetwork nn = new NeuralNetwork(layers, .1);
-        nn.fit(inputArray, outputArray, 200000);
+        NeuralNetwork nn = new NeuralNetwork(layers, 1);
+        nn.fit(inputArray, outputArray, 100000);
 
         // Logs Neural Network end time
         timer.setTime(TimeID.NEURAL_NETWORK_END);
