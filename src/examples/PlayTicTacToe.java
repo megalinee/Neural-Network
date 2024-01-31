@@ -1,6 +1,7 @@
 package examples;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -56,7 +57,7 @@ public class PlayTicTacToe {
             }
 
             // For O winner
-            else if (line.equals("-1.0-1.0-1.0")) {
+            else if (line.equals("2.02.02.0")) {
                 return "O";
             }
         }
@@ -72,27 +73,10 @@ public class PlayTicTacToe {
         return null;
     }
 
-    static void printBoard() {
-        System.out.println("|-----|-----|-----|");
-        System.out.println("| " + board[0] + " | "
-                + board[1] + " | " + board[2]
-                + " |");
-        System.out.println("|-----------------|");
-        System.out.println("| " + board[3] + " | "
-                + board[4] + " | " + board[5]
-                + " |");
-        System.out.println("|-----------------|");
-        System.out.println("| " + board[6] + " | "
-                + board[7] + " | " + board[8]
-                + " |");
-        System.out.println("|-----|-----|-----|");
-        System.out.println();
-    }
-
     public static void main(String[] args) {
-        int[] layers = { 9, 20, 20, 20, 9 };
-        player1 = new NeuralNetwork(layers, .01);
-        int epochs = 100000;
+        int[] layers = { 9, 6, 6, 1 };
+        player1 = new NeuralNetwork(layers, .1);
+        int epochs = 10000;
 
         for (int i = 0; i < epochs; i++) {
             if (i % 1000 == 0) {
@@ -113,7 +97,7 @@ public class PlayTicTacToe {
         }
         System.out.println("WINS: " + xCount);
         System.out.println("TIES: " + tieCount);
-        System.out.println("TOTAL: " + (xCount + tieCount) + " / " + 100);
+        System.out.println("TOTAL: " + (xCount + tieCount) + " / " + 1000);
         while (true) {
             playerGameplayLoop();
         }
@@ -132,7 +116,7 @@ public class PlayTicTacToe {
         }
 
         System.out.println("Welcome to 3x3 Tic Tac Toe.");
-        printBoard();
+        printBoard(board);
 
         System.out.println(
                 "X will play first. Enter a slot number to place X in:");
@@ -150,9 +134,26 @@ public class PlayTicTacToe {
             // Here is the logic to decide the turn.
 
             if (turn == 1.0) {
-                List<Double> moves = player1.predict(board);
-                board[findValidMove(moves)] = turn;
+                double[] bestPotentialBoard = Arrays.copyOf(board, 9);
 
+                double bestPotentialBoardScore = -1;
+                double[] boardPredictions = new double[9];
+                for (int i = 0; i < 9; i++) {
+                    if (isValidMove(board, i)) {
+                        double[] potentialBoard = Arrays.copyOf(board, 9);
+                        potentialBoard[i] = turn;
+                        List<Double> potentialBoardScore = player1.predict(potentialBoard);
+                        boardPredictions[i] = potentialBoardScore.get(0);
+                        if (potentialBoardScore.get(0) > bestPotentialBoardScore) {
+                            bestPotentialBoard = Arrays.copyOf(potentialBoard, 9);
+                            bestPotentialBoardScore = potentialBoardScore.get(0);
+                        }
+                    } else {
+                        boardPredictions[i] = -1;
+                    }
+                }
+                printBoard(boardPredictions);
+                board = Arrays.copyOf(bestPotentialBoard, 9);
             } else {
 
                 try {
@@ -176,12 +177,12 @@ public class PlayTicTacToe {
                 }
             }
             if (turn == 1.0) {
-                turn = -1;
+                turn = 2;
             } else {
                 turn = 1;
             }
 
-            printBoard();
+            printBoard(board);
             boardHistory.add(board);
             winner = checkWinner();
         }
@@ -197,13 +198,13 @@ public class PlayTicTacToe {
         else {
             if (winner.equals("X")) {
                 for (int i = 0; i < boardHistory.size() - 1; i++) {
-                    player1.train(boardHistory.get(i), boardHistory.get(i + 1));
-                    // player2.train(boardHistory.get(i), boardHistory.get(i + 1));
+                    player1.train(boardHistory.get(i), new double[] { 1 });
+                    player1.train(invertBoard(boardHistory.get(i)), new double[] { 0 });
                 }
             } else {
                 for (int i = 0; i < boardHistory.size() - 1; i++) {
-                    player1.train(invertBoard(boardHistory.get(i)), invertBoard(boardHistory.get(i + 1)));
-                    // player2.train(boardHistory.get(i), boardHistory.get(i + 1));
+                    player1.train(boardHistory.get(i), new double[] { 0 });
+                    player1.train(invertBoard(boardHistory.get(i)), new double[] { 1 });
                 }
             }
             System.out.println(
@@ -215,8 +216,6 @@ public class PlayTicTacToe {
     public static void autoGameplayLoop(boolean isPrintingBoard) {
         board = new double[9];
         turn = 1;
-        int[] layers = { 9, 9 };
-        NeuralNetwork opponent = new NeuralNetwork(layers, 1);
 
         List<double[]> boardHistory = new ArrayList<>();
 
@@ -227,24 +226,34 @@ public class PlayTicTacToe {
         }
 
         while (winner == null) {
-            List<Double> moves;
-            if (turn == 1) {
-                moves = player1.predict(board);
+
+            if (turn == 1.0) {
+                double[] bestPotentialBoard = Arrays.copyOf(board, 9);
+
+                double bestPotentialBoardScore = -1;
+                for (int i = 0; i < 9; i++) {
+                    if (isValidMove(board, i)) {
+                        double[] potentialBoard = Arrays.copyOf(board, 9);
+                        potentialBoard[i] = turn;
+                        List<Double> potentialBoardScore = player1.predict(potentialBoard);
+                        if (potentialBoardScore.get(0) > bestPotentialBoardScore) {
+                            bestPotentialBoard = Arrays.copyOf(potentialBoard, 9);
+                            bestPotentialBoardScore = potentialBoardScore.get(0);
+                        }
+                    }
+                }
+                board = Arrays.copyOf(bestPotentialBoard, 9);
             } else {
-                moves = opponent.predict(board);
-                // moves = player2.predict(board);
+                board[findRandomMove(board)] = 2.0;
             }
 
-            board[findValidMove(moves)] = turn;
-
             if (turn == 1) {
-                turn = -1;
+                turn = 2;
             } else {
                 turn = 1;
             }
-
             if (isPrintingBoard)
-                printBoard();
+                printBoard(board);
             boardHistory.add(board);
             winner = checkWinner();
 
@@ -254,9 +263,10 @@ public class PlayTicTacToe {
         // then here is the logic to print "draw".
         if (winner.equalsIgnoreCase("draw")) {
             for (int i = 0; i < boardHistory.size() - 1; i++) {
-                player1.train(boardHistory.get(i), boardHistory.get(i + 1));
+                player1.train(boardHistory.get(i), new double[] { 1 });
                 // player2.train(boardHistory.get(i), boardHistory.get(i + 1));
             }
+            printBoard(board);
             System.out.println(
                     "It's a draw! Thanks for playing!!");
         }
@@ -265,41 +275,62 @@ public class PlayTicTacToe {
         else {
             if (winner.equals("X")) {
                 for (int i = 0; i < boardHistory.size() - 1; i++) {
-                    player1.train(boardHistory.get(i), boardHistory.get(i + 1));
-                    // player2.train(boardHistory.get(i), boardHistory.get(i + 1));
+                    player1.train(boardHistory.get(i), new double[] { 1 });
+                    // player1.train(invertBoard(boardHistory.get(i)), new double[] { 0 });
                 }
             } else {
                 for (int i = 0; i < boardHistory.size() - 1; i++) {
-                    player1.train(invertBoard(boardHistory.get(i)), invertBoard(boardHistory.get(i + 1)));
-                    // player2.train(boardHistory.get(i), boardHistory.get(i + 1));
+                    // player1.train(invertBoard(boardHistory.get(i)), new double[] { 1 });
+                    player1.train(boardHistory.get(i), new double[] { 0 });
                 }
             }
-            printBoard();
+            printBoard(board);
             System.out.println(
                     "Congratulations! " + winner
                             + "'s have won! Thanks for playing.");
         }
     }
 
-    public static int findValidMove(List<Double> moves) {
-        TreeSet<Double> sorted = new TreeSet<Double>(moves);
-        for (int i = 0; i < moves.size(); i++) {
-            if (board[moves.indexOf(sorted.last())] == 0.0) {
-                return moves.indexOf(sorted.last());
-            }
-            sorted.remove(sorted.last());
+    public static boolean isValidMove(double[] board, int indexOfMove) {
+        if (board[indexOfMove] == 0.0) {
+            return true;
         }
-        System.out.println("it shouldnt get to here :(");
-        printBoard();
-        return -1;
+        return false;
+    }
+
+    public static void printBoard(double[] board) {
+        System.out.println("|-----|-----|-----|");
+        System.out.println("| " + board[0] + " | "
+                + board[1] + " | " + board[2]
+                + " |");
+        System.out.println("|-----------------|");
+        System.out.println("| " + board[3] + " | "
+                + board[4] + " | " + board[5]
+                + " |");
+        System.out.println("|-----------------|");
+        System.out.println("| " + board[6] + " | "
+                + board[7] + " | " + board[8]
+                + " |");
+        System.out.println("|-----|-----|-----|");
+        System.out.println();
+    }
+
+    public static int findRandomMove(double[] board) {
+        List<Integer> availableIndex = new ArrayList<>();
+        for (int i = 0; i < board.length; i++) {
+            if (isValidMove(board, i)) {
+                availableIndex.add(i);
+            }
+        }
+        return availableIndex.get((int) (Math.random() * availableIndex.size()));
     }
 
     public static double[] invertBoard(double[] board) {
         double[] newBoard = board = new double[9];
         for (int i = 0; i < board.length; i++) {
             if (board[i] == 1) {
-                newBoard[i] = -1;
-            } else if (board[i] == -1) {
+                newBoard[i] = 2;
+            } else if (board[i] == 2) {
                 newBoard[i] = 1;
             } else {
                 newBoard[i] = 0;
